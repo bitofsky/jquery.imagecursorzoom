@@ -15,13 +15,11 @@
 
   $.imageCursorZoom = imageCursorZoom;
 
-  $.fn.imageCursorZoom = function(){
+  $.fn.imageCursorZoom = function( option ){
     return this.on('click.imageCursorZoom', function(){
-      imageCursorZoom(this);
+      imageCursorZoom(this, option);
     });
   };
-
-  return imageCursorZoom;
 
   /**
    * @param {ImgElement} elm
@@ -29,15 +27,19 @@
    */
   function imageCursorZoom( elm, option ){
 
-    var opt = $.extend(true, {/*transition: 'transform 0.05s ease-out'*/}, option),
-        $window = $(window).on('resize', onResize),
-        $body = $('BODY'),
+    var opt = $.extend(true, {parent: 'BODY'/*,transition: 'transform 0.05s ease-out'*/}, option),
+        $parent = $( opt.parent ),
         $wrapper = $('<div/>'),
         $clone = $(elm).clone().css({width : 'auto', height : 'auto', transition : opt.transition}),
-        windowWidth = 0,
-        windowHeight = 0;
+        parentWidth = 0,
+        parentHeight = 0;
+
+    ($parent[0] === $('BODY')[0] ? $(window) : $parent).on('resize', onResize).trigger('resize');
+
+    $wrapper.on('mousemove.imageCursorZoom', onMousemove);
 
     $wrapper.css({
+      overflow: 'hidden',
       position : 'absolute',
       left : 0,
       top : 0,
@@ -45,10 +47,7 @@
       width : '100%',
       height : '100%',
       'z-index' : 9999
-    }).on('click', destroy).on('mousemove', onMousemove),
-        $wrapper.append($clone).appendTo($body);
-
-    onResize();
+    }).on('click', destroy).append($clone).appendTo($parent);
 
     /**
      * Tracking mouse pointer
@@ -58,10 +57,10 @@
 
       var width = +$clone[0].clientWidth || $clone.width(),
           height = +$clone[0].clientHeight || $clone.height(),
-          ratioX = event.pageX / windowWidth,
-          ratioY = event.pageY / windowHeight,
-          posX = -(width - windowWidth) * ratioX,
-          posY = -(height - windowHeight) * ratioY;
+          ratioX = (event.pageX / parentWidth) > 1 ? 1 : (event.pageX / parentWidth),
+          ratioY = (event.pageY / parentHeight) > 1 ? 1 : (event.pageY / parentHeight),
+          posX = -(width - parentWidth) * ratioX,
+          posY = -(height - parentHeight) * ratioY;
 
       if( posX > 0 )
         posX = 0;
@@ -79,8 +78,8 @@
      */
     function onResize( event ){
 
-      windowWidth = +$window.width();
-      windowHeight = +$window.height();
+      parentWidth = +$(this).width();
+      parentHeight = +$(this).height();
 
     }
 
