@@ -27,27 +27,38 @@
    */
   function imageCursorZoom( elm, option ){
 
-    var opt = $.extend(true, {parent: 'BODY'/*,transition: 'transform 0.05s ease-out'*/}, option),
+    var opt = $.extend(true, {parent: 'BODY', src:function(){ return this.src; }/*,transition: 'transform 0.05s ease-out'*/}, option),
         $parent = $( typeof opt.parent == 'function' ? opt.parent.call(elm) : opt.parent ),
         $wrapper = $('<div/>'),
-        $clone = $(elm).clone().css({width : 'auto', height : 'auto', transition : opt.transition}),
+        $clone = $('<img/>').attr('src', typeof opt.parent == 'function' ? opt.src.call(elm) : opt.src).css({width : 'auto', height : 'auto', transition : opt.transition}),
         parentWidth = 0,
         parentHeight = 0,
         isBody = $parent[0] === $('BODY')[0],
+        scrollTop = isBody ? Math.max($('BODY').scrollTop(), $(window).scrollTop()) : $parent.scrollTop(),
+        scrollLeft = isBody ? Math.max($('BODY').scrollLeft(), $(window).scrollLeft()) : $parent.scrollLeft(),
+        originOverflowX = $parent.css('overflow-x'),
+        originOverflowY = $parent.css('overflow-Y'),
         originPosition = $parent.css('position');
 
     (isBody ? $(window) : $parent).on('resize', onResize).trigger('resize');
 
     if( !isBody )
-      $parent.css('position', 'relative');
+      $parent.css({
+        position: 'relative'
+      });
+
+    $parent.css({
+      'overflow-x': 'hidden',
+      'overflow-y': 'hidden'
+    });
 
     $wrapper.on('mousemove.imageCursorZoom', onMousemove);
 
     $wrapper.css({
       overflow: 'hidden',
       position : 'absolute',
-      left : 0,
-      top : 0,
+      left : scrollLeft,
+      top : scrollTop,
       background : 'white',
       width : '100%',
       height : '100%',
@@ -94,7 +105,11 @@
     function destroy(){
       $clone.remove();
       $wrapper.remove();
-      $parent.css('position', originPosition);
+      $parent.css({
+        position: originPosition,
+        'overflow-x': originOverflowX,
+        'overflow-y': originOverflowY
+      });
     }
 
   }
