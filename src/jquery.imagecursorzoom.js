@@ -27,10 +27,20 @@
    */
   function imageCursorZoom( elm, option ){
 
-    var opt = $.extend(true, {parent: 'BODY', src:function(){ return this.src; }/*,transition: 'transform 0.05s ease-out'*/}, option),
+    var opt = $.extend(true, {
+          parent: 'BODY',
+          src: function(){
+            return this.src;
+          },
+          onerror: function(src){
+            window.open(src);
+          }
+          //transition: 'transform 0.05s ease-out'
+        }, option),
+        src = typeof opt.src == 'function' ? opt.src.call(elm) : opt.src,
         $parent = $( typeof opt.parent == 'function' ? opt.parent.call(elm) : opt.parent ),
         $wrapper = $('<div/>'),
-        $clone = $('<img/>').attr('src', typeof opt.parent == 'function' ? opt.src.call(elm) : opt.src).css({width : 'auto', height : 'auto', transition : opt.transition}),
+        $clone = $('<img/>').attr('src', src).css({width : 'auto', height : 'auto', transition : opt.transition}),
         parentWidth = 0,
         parentHeight = 0,
         isBody = $parent[0] === $('BODY')[0],
@@ -40,7 +50,12 @@
         originOverflowY = $parent.css('overflow-Y'),
         originPosition = $parent.css('position');
 
-    (isBody ? $(window) : $parent).on('resize', onResize).trigger('resize');
+    try{ // IE Exception
+      (isBody ? $(window) : $parent).on('resize', onResize).trigger('resize');
+    }catch(e){
+      opt.onerror( src );
+      return;
+    }
 
     if( !isBody )
       $parent.css({
@@ -63,7 +78,10 @@
       width : '100%',
       height : '100%',
       'z-index' : 9999
-    }).on('click', destroy).append($clone).appendTo($parent);
+    }).on('click', destroy).append( $clone ).appendTo( $parent );
+
+    var clientWidth  = $clone[0].clientWidth || $clone.width(),
+        clientHeight = $clone[0].clientHeight || $clone.height();
 
     /**
      * Tracking mouse pointer
@@ -71,12 +89,10 @@
      */
     function onMousemove( event ){
 
-      var width = +$clone[0].clientWidth || $clone.width(),
-          height = +$clone[0].clientHeight || $clone.height(),
-          ratioX = (event.pageX / parentWidth) > 1 ? 1 : (event.pageX / parentWidth),
+      var ratioX = (event.pageX / parentWidth) > 1 ? 1 : (event.pageX / parentWidth),
           ratioY = (event.pageY / parentHeight) > 1 ? 1 : (event.pageY / parentHeight),
-          posX = -(width - parentWidth) * ratioX,
-          posY = -(height - parentHeight) * ratioY;
+          posX = -(clientWidth - parentWidth) * ratioX,
+          posY = -(clientHeight - parentHeight) * ratioY;
 
       if( posX > 0 )
         posX = 0;
