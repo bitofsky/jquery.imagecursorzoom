@@ -2,10 +2,10 @@
  * jquery.imageCursorZoom
  * jQuery Plugin
  *
- * @author bitofsky@neowiz.com 2015.09.10
- * @package
- * @subpackage
- * @encoding UTF-8
+ * @author bitofsky@neowiz.com
+ * @since 2015.09.10
+ * @see https://github.com/bitofsky/jquery.imagecursorzoom
+ * @license MIT
  * @version 1.0
  */
 
