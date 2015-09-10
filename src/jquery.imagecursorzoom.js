@@ -1,6 +1,6 @@
 /**
  * jquery.imageCursorZoom
- * jQUery Plugin
+ * jQuery Plugin
  *
  * @author bitofsky@neowiz.com 2015.09.10
  * @package
