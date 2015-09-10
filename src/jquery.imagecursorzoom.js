@@ -32,9 +32,14 @@
         $wrapper = $('<div/>'),
         $clone = $(elm).clone().css({width : 'auto', height : 'auto', transition : opt.transition}),
         parentWidth = 0,
-        parentHeight = 0;
+        parentHeight = 0,
+        isBody = $parent[0] === $('BODY')[0],
+        originPosition = $parent.css('position');
 
-    ($parent[0] === $('BODY')[0] ? $(window) : $parent).on('resize', onResize).trigger('resize');
+    (isBody ? $(window) : $parent).on('resize', onResize).trigger('resize');
+
+    if( !isBody )
+      $parent.css('position', 'relative');
 
     $wrapper.on('mousemove.imageCursorZoom', onMousemove);
 
@@ -89,6 +94,7 @@
     function destroy(){
       $clone.remove();
       $wrapper.remove();
+      $parent.css('position', originPosition);
     }
 
   }
