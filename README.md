@@ -1,6 +1,9 @@
 # jquery.imagecursorzoom
 Image Cursor Zoom - jQuery Plugin
 
+# Demo
+http://jsfiddle.net/hbsto/48m6Lws9/
+
 # How to use
 ```javascript
 // Install - HEAD
