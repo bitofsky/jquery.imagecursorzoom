@@ -11,7 +11,7 @@
 
 "use strict";
 
-(function( window, $ ){
+(function( window, $, define ){
 
   $.imageCursorZoom = imageCursorZoom;
 
@@ -102,6 +102,7 @@
   /**
    * AMD(Asynchronous Module Definition)
    */
-  define([], function(){ return imageCursorZoom; });
+  if( define && define.amd )
+    define('imageCursorZoom', [], function(){ return imageCursorZoom; });
 
-})(this, this.jQuery);
+})(this, this.jQuery, this.define);
