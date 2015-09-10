@@ -28,7 +28,7 @@
   function imageCursorZoom( elm, option ){
 
     var opt = $.extend(true, {parent: 'BODY'/*,transition: 'transform 0.05s ease-out'*/}, option),
-        $parent = $( opt.parent ),
+        $parent = $( typeof opt.parent == 'function' ? opt.parent.call(elm) : opt.parent ),
         $wrapper = $('<div/>'),
         $clone = $(elm).clone().css({width : 'auto', height : 'auto', transition : opt.transition}),
         parentWidth = 0,
