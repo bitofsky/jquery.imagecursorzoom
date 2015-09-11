@@ -27,6 +27,9 @@
    */
   function imageCursorZoom( elm, option ){
 
+    var clientWidth  = elm.clientWidth,
+        clientHeight = elm.clientHeight;
+
     var opt = $.extend(true, {
           parent: 'BODY',
           src: function(){
@@ -34,13 +37,14 @@
           },
           onerror: function(src){
             window.open(src);
-          }
+          },
+          ondestroy: null
           //transition: 'transform 0.05s ease-out'
         }, option),
         src = typeof opt.src == 'function' ? opt.src.call(elm) : opt.src,
         $parent = $( typeof opt.parent == 'function' ? opt.parent.call(elm) : opt.parent ),
         $wrapper = $('<div/>'),
-        $clone = $('<img/>').attr('src', src).css({width : 'auto', height : 'auto', transition : opt.transition}),
+        $clone = $('<img/>').on('load', imageLoaded).on('error', imageFailed).attr('src', src).css({visibility: 'hidden', width : 'auto', height : 'auto', transition : opt.transition}),
         parentWidth = 0,
         parentHeight = 0,
         isBody = $parent[0] === $('BODY')[0],
@@ -83,10 +87,28 @@
       .append( $clone )
       .appendTo( $parent );
 
-    var clientWidth  = $clone[0].clientWidth || $clone.width(),
-        clientHeight = $clone[0].clientHeight || $clone.height();
+    function imageFailed(){
+      moveImage(0, 0);
+      $clone.attr('src', elm.src);
+      created();
+    }
 
-    moveImage(0, 0);
+    function imageLoaded(){
+      clientWidth = this.clientWidth || $clone.width();
+      clientHeight = this.clientHeight || $clone.height();
+      created();
+    }
+
+    function created(){
+
+      moveImage(0, 0);
+      $clone.css({visibility:'visible'});
+
+      if( typeof opt.oncreate === 'function' ){
+        opt.oncreate.call(elm, $clone, $wrapper);
+      }
+
+    }
 
     /**
      * Tracking mouse pointer
@@ -118,8 +140,8 @@
       ratio = (x / pSize) > 1 ? 1 : (x / pSize),
       ratio = ratio > 1 ? 1 : ratio;
       px = (pSize - cSize) * ratio,
-      px = px > 0 ? 0 : px;
       px = cSize < pSize ? ((pSize - cSize) / 2) : px;
+      px = cSize > pSize && px > 0 ? 0 : px;
 
       return px;
 
@@ -146,6 +168,9 @@
       $parent[0].style.overflowX = overflowX;
       $parent[0].style.overflowY = overflowY;
       $parent[0].style.position = position;
+      if( typeof opt.ondestroy === 'function' ){
+        opt.ondestroy.call(elm);
+      }
     }
 
   }
