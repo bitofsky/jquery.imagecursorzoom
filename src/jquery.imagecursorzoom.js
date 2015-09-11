@@ -46,9 +46,9 @@
         isBody = $parent[0] === $('BODY')[0],
         scrollTop = isBody ? Math.max($('BODY').scrollTop(), $(window).scrollTop()) : $parent.scrollTop(),
         scrollLeft = isBody ? Math.max($('BODY').scrollLeft(), $(window).scrollLeft()) : $parent.scrollLeft(),
-        originOverflowX = $parent.css('overflow-x'),
-        originOverflowY = $parent.css('overflow-Y'),
-        originPosition = $parent.css('position');
+        overflowX = $parent[0].style.overflowX,
+        overflowY = $parent[0].style.overflowY,
+        position = $parent[0].style.position;
 
     try{ // IE Exception
       (isBody ? $(window) : $parent).on('resize', onResize).trigger('resize');
@@ -58,49 +58,71 @@
     }
 
     if( !isBody )
-      $parent.css({
-        position: 'relative'
-      });
+      $parent.css('position', 'relative');
 
     $parent.css({
       'overflow-x': 'hidden',
       'overflow-y': 'hidden'
     });
 
-    $wrapper.on('mousemove.imageCursorZoom', onMousemove);
-
-    $wrapper.css({
-      overflow: 'hidden',
-      position : 'absolute',
-      left : scrollLeft,
-      top : scrollTop,
-      background : 'white',
-      width : '100%',
-      height : '100%',
-      'z-index' : 9999
-    }).on('click', destroy).append( $clone ).appendTo( $parent );
+    $wrapper
+      .on('mousemove.imageCursorZoom', function( event ){
+        moveImage(event.pageX, event.pageY);
+      })
+      .on('click.imageCursorZoom', destroy)
+      .css({
+        overflow: 'hidden',
+        position : 'absolute',
+        left : scrollLeft,
+        top : scrollTop,
+        background : 'white',
+        width : '100%',
+        height : '100%',
+        'z-index' : 9999
+      })
+      .append( $clone )
+      .appendTo( $parent );
 
     var clientWidth  = $clone[0].clientWidth || $clone.width(),
         clientHeight = $clone[0].clientHeight || $clone.height();
 
+    moveImage(0, 0);
+
     /**
      * Tracking mouse pointer
-     * @param {Event} event
+     * @param {Number} mouseX
+     * @param {Number} mouseY
      */
-    function onMousemove( event ){
+    function moveImage( mouseX, mouseY ){
 
-      var ratioX = (event.pageX / parentWidth) > 1 ? 1 : (event.pageX / parentWidth),
-          ratioY = (event.pageY / parentHeight) > 1 ? 1 : (event.pageY / parentHeight),
-          posX = -(clientWidth - parentWidth) * ratioX,
-          posY = -(clientHeight - parentHeight) * ratioY;
-
-      if( posX > 0 )
-        posX = 0;
-
-      if( posY > 0 )
-        posY = 0;
+      var posX = getPx(mouseX, scrollLeft, parentWidth, clientWidth),
+          posY = getPx(mouseY, scrollTop, parentHeight, clientHeight);
 
       $clone.css('transform', 'translate(' + posX + 'px, ' + posY + 'px)');
+
+    }
+
+    /**
+     * Cacl px
+     * @param {type} pos
+     * @param {type} scroll
+     * @param {type} pSize
+     * @param {type} cSize
+     * @returns px
+     */
+    function getPx( pos, scroll, pSize, cSize ){
+
+      var x, ratio, px;
+
+      x = pos - scroll,
+      ratio = (x / pSize) > 1 ? 1 : (x / pSize),
+      ratio = ratio > 1 ? 1 : ratio;
+      px = (pSize - cSize) * ratio,
+      px = px > 0 ? 0 : px;
+      px = cSize < pSize ? ((pSize - cSize) / 2) : px;
+
+      return px;
+
 
     }
 
@@ -121,11 +143,9 @@
     function destroy(){
       $clone.remove();
       $wrapper.remove();
-      $parent.css({
-        position: originPosition,
-        'overflow-x': originOverflowX,
-        'overflow-y': originOverflowY
-      });
+      $parent[0].style.overflowX = overflowX;
+      $parent[0].style.overflowY = overflowY;
+      $parent[0].style.position = position;
     }
 
   }
