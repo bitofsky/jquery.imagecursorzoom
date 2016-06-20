@@ -11,7 +11,10 @@
 
 "use strict";
 
-(function( window, $, define ){
+(function( window ){
+
+  var $ = window.jQuery;
+  var define = window.define;
 
   $.imageCursorZoom = imageCursorZoom;
 
@@ -181,4 +184,4 @@
   if( define && define.amd )
     define('imageCursorZoom', [], function(){ return imageCursorZoom; });
 
-})(this, this.jQuery, this.define);
+})(typeof global !== "undefined" ? global : this);
