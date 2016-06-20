@@ -1,8 +1,25 @@
 {
-  "name": "imagecursorzoom",
+  "name": "jquery.imagecursorzoom",
   "version": "1.0.0",
   "description": "",
   "main": "src/jquery.imagecursorzoom.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitofsky/jquery.imagecursorzoom.git"
+  },
+  "keywords": [
+    "jquery",
+    "plugin",
+    "image",
+    "zoom"
+  ],
   "author": "bitofsky",
-  "license": "MIT"
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bitofsky/jquery.imagecursorzoom/issues"
+  },
+  "homepage": "https://github.com/bitofsky/jquery.imagecursorzoom#readme"
 }
