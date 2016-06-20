@@ -2,7 +2,7 @@
   "name": "imagecursorzoom",
   "version": "0.0.1",
   "description": "",
-  "main": "gulpfile.js",
+  "main": "src/jquery.imagecursorzoom.js",
   "author": "bitofsky",
   "license": "MIT"
 }
